@@ -1,0 +1,43 @@
+extensions:
+
+    nettrine.annotations: Nettrine\Annotations\DI\AnnotationsExtension
+    nettrine.cache: Nettrine\Cache\DI\CacheExtension
+
+    #dbalTot
+    nettrine.dbal: Nettrine\DBAL\DI\DbalExtension
+    nettrine.dbal.console: Nettrine\DBAL\DI\DbalConsoleExtension
+
+    #orm
+    nettrine.orm: Nettrine\ORM\DI\OrmExtension
+    nettrine.orm.cache: Nettrine\ORM\DI\OrmCacheExtension
+    nettrine.orm.console: Nettrine\ORM\DI\OrmConsoleExtension
+    nettrine.orm.annotations: Nettrine\ORM\DI\OrmAnnotationsExtension
+
+nettrine.dbal:
+    debug:
+        panel: %debugMode%
+        sourcePaths: [%appDir%]
+
+    configuration:
+        sqlLogger: Nettrine\DBAL\Logger\PsrLogger(@Monolog\Logger)
+    connection:
+        driver: mysqli
+        host: 127.0.0.1
+        user: cms
+        password: heslo
+        dbname: cms
+        port: 8889
+
+nettrine.orm:
+  entityManagerDecoratorClass: App\Model\Database\EntityManagerDecorator
+  configuration:
+    autoGenerateProxyClasses: %debugMode%
+
+nettrine.orm.annotations:
+    mapping:
+        App\Model\Database\Entity: %appDir%/Model/Database/Entity
+
+nettrine.orm.cache:
+
+nettrine.cache:
+

@@ -1,0 +1,58 @@
+{
+        $repository = $this->em->getRepository(Content::class);
+        $item = $repository->find($item_id);
+
+        if(!$prev_id) {
+            $previousItem = NULL;
+        } else {
+            $previousItem = $repository->find($prev_id);
+        }
+
+        if (!$next_id) {
+            $nextItem = NULL;
+        } else {
+            $nextItem = $repository->find($next_id);
+        }
+
+        $itemsToMoveUp = $repository->createQueryBuilder('r')
+            ->where('r.order <= :order')
+            ->setParameter('order', $previousItem ? $previousItem->getOrder() : 0)
+            ->andWhere('r.order > :order2')
+            ->setParameter('order2', $item->getOrder())
+            ->getQuery()
+            ->getResult();
+
+        foreach ($itemsToMoveUp as $t) {
+            $t->setOrder($t->getOrder() - 1);
+            $this->em->persist($t);
+        }
+
+        $itemsToMoveDown = $repository->createQueryBuilder('r')
+            ->where('r.order >= :order')
+            ->setParameter('order', $nextItem ? $nextItem->getOrder() : 0)
+            ->andWhere('r.order < :order2')
+            ->setParameter('order2', $item->getOrder())
+            ->getQuery()
+            ->getResult();
+
+        foreach ($itemsToMoveDown as $t) {
+            $t->setOrder($t->getOrder() + 1);
+            $this->em->persist($t);
+        }
+
+        if ($previousItem) {
+            $item->setOrder($previousItem->getOrder() + 1);
+        } else if ($nextItem) {
+            $item->setOrder($nextItem->getOrder() - 1);
+        } else {
+            $item->setOrder(1);
+        }
+
+        $this->em->persist($item)->flush();
+
+        $this->flashMessage("Id: $item_id, Previous id: $prev_id, Next id: $next_id", 'success');
+        $this->redrawControl('flashes');
+
+        $this['itemsGrid']->redrawControl();
+
+    }
